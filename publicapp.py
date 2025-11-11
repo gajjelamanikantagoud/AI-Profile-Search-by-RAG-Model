@@ -78,10 +78,27 @@ retriever, llm = load_models()
 
 # --- Build RAG QA Chain ---
 if retriever and llm:
+    # Prompt Template
     prompt_template = """
-    You are an expert HR assistant... (rest of your prompt)
-    Context: {context}
-    Question: {question}
+    You are an expert HR assistant. Your ONLY task is to answer user questions 
+    based *strictly* and *exclusively* on the context provided.
+
+    Use the following retrieved context to answer the user's question:
+    
+    Context:
+    {context}
+    
+    Question:
+    {question}
+
+    Rules you MUST follow:
+    1.  Use ONLY the context. Do not use any of your outside knowledge.
+    2.  If the answer is not in the context, you MUST say "I do not have enough 
+        information to answer this question."
+    3.  Do NOT make suggestions, offer alternatives, or add any information 
+        that is not explicitly in the context.
+    4.  Provide concise summaries for profiles you find.
+
     Answer:
     """
     qa_chain = RetrievalQA.from_chain_type(
@@ -115,4 +132,5 @@ if retriever and llm:
         else:
             st.warning("Please enter a query.")
 else:
+
     st.info("Models are not loaded. Please check your setup.")
